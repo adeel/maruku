@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 	output is really beautiful!"
   s.license = 'MIT'
   s.authors = ["Andrea Censi", "Nathan Weizenbaum", "Ben Hollis"]
-  s.email = "ben@benhollis.net"
+  s.email = "kadeel@gmail.com"
   s.homepage = "http://github.com/bhollis/maruku"
 
   s.files = Dir['lib/**/*.rb',
@@ -23,8 +23,8 @@ Gem::Specification.new do |s|
   s.executables = ['maruku','marutex']
 
   # Sign the gem - http://docs.rubygems.org/read/chapter/21
-  s.cert_chain  = ['certs/bhollis.pem']
-  s.signing_key = File.expand_path("~/.gem/private_key.pem") if $0 =~ /gem\z/
+  s.cert_chain  = ['certs/adeel.pem']
+  s.signing_key = File.expand_path("~/.ssh/gem-private_key.pem") if $0 =~ /gem\z/
 
   s.require_path = 'lib'
 

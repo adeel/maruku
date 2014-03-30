@@ -64,6 +64,7 @@ opt = OptionParser.new do |opts|
   opts.on_tail("--html-frag", "Output the contents of the <body> tag") {export = :html_frag}
   opts.on_tail("--tex", "Output LaTeX" ) {export = :tex}
   opts.on_tail("--markdown", "Output Markdown" ) {export = :markdown}
+  opts.on_tail("--wiki", "Output MediaWiki syntax" ) {export = :mediawiki}
   opts.on_tail("--inspect", "Output the parse tree") {export = :inspect}
 
   opts.on_tail("--ext EXTENSIONS", "Use Maruku extensions (comma separated)") do |s|
@@ -142,6 +143,9 @@ end.each do |filename, input|
     when :s5
       suffix = '_s5slides.html'
       out = doc.to_s5(:content_only => false, :print_slides => true)
+    when :mediawiki
+      suffix = '.wiki'
+      out = doc.to_wiki
     end
   end
 

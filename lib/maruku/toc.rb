@@ -81,6 +81,11 @@ module MaRuKu
       _to_latex + "\n\n"
     end
 
+    def to_mediawiki
+      ### todo (adeel)
+      ""
+    end
+
     protected
 
     def _to_html

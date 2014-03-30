@@ -33,6 +33,7 @@ module MaRuKu
     module Markdown; end
     module HTML; end
     module Latex; end
+    module MediaWiki; end
   end
 
   module Strings; end
@@ -46,6 +47,7 @@ module MaRuKu
     include Out::Markdown
     include Out::HTML
     include Out::Latex
+    include Out::MediaWiki
     include Strings
     include Helpers
     include Errors
@@ -114,6 +116,9 @@ require 'maruku/output/to_html'
 
 # Exporting to latex
 require 'maruku/output/to_latex'
+
+# Exporting to mediawiki
+require 'maruku/output/to_mediawiki'
 
 # Pretty print
 require 'maruku/output/to_markdown'
