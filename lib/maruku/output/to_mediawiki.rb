@@ -59,6 +59,14 @@ module MaRuKu::Out::MediaWiki
     wrap(@children, line_length, context)+"\n"
   end
 
+  def to_wiki_div(context)
+    m = "<div"
+    attributes.each do |k, v|
+      m << " #{k.to_s}=\"#{v.to_s}\""
+    end
+    m << ">\n" << children_to_wiki(context).strip << "\n</div>\n\n"
+  end
+
   def to_wiki_im_link(context)
     "[#{@url} #{children_to_wiki(context)}]"
   end
