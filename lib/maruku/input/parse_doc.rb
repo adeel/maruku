@@ -5,7 +5,7 @@ module MaRuKu::In::Markdown::BlockLevelParser
 
   def parse_doc(s)
     # Remove BOM if it is present
-    s = s.sub(/^\xEF\xBB\xBF/u, '')
+    s = s.force_encoding("UTF-8").sub(/\xEF\xBB\xBF/u, '')
     meta2 = parse_email_headers(s)
     data = meta2.delete :data
 
