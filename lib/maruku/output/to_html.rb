@@ -12,6 +12,21 @@ module MaRuKu::Out::HTML
     # get rid of non-printable control characters.
   end
 
+  def self.filter_attributes(name, attributes)
+    attrs = {}
+    Array(HTML4Attributes[name]).each do |att|
+      if v = attributes[att]
+        attrs[att.to_s] = MaRuKu::Out::HTML.escapeHTML(v.to_s)
+      end
+    end
+    attrs
+  end
+
+  def self.wrap_with_attrs(name, content="", attributes={})
+    attrs = MaRuKu::Out::HTML.filter_attributes(name, attributes)
+    HTMLElement.new(name, attrs, content).to_s
+  end
+
   # A simple class to represent an HTML element for output.
   class HTMLElement
     attr_accessor :name

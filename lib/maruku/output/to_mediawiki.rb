@@ -1,29 +1,24 @@
 module MaRuKu::Out::MediaWiki
 
-  # there are spacing issues with line wrapping
-  DefaultLineLength = 10**10
-
   def to_wiki(context={})
     children_to_wiki(context)
   end
 
   def to_wiki_header(context)
     s = "=" * @level
-    "#{s} #{children_to_wiki(context)} #{s}\n\n"
+    "\n#{s} #{children_to_wiki(context)} #{s}\n"
   end
 
   def to_wiki_inline_code(context)
-    "<code>#{@raw_code}</code>"
+    wrap_with_attrs @raw_code, {:tag => "code"}
   end
 
   def to_wiki_code(context)
-    "<pre>#{@raw_code}</pre>\n\n"
+    wrap_with_attrs @raw_code, {:tag => "pre"}
   end
 
   def to_wiki_quote(context)
-    line_length = (context[:line_length] || DefaultLineLength) - 2
-    s = wrap(@children, line_length, context)
-    "<blockquote>\n#{s}</blockquote>\n\n"
+    wrap_with_attrs children_to_wiki(context), {:tag => "blockquote"}
   end
 
   def to_wiki_hrule(context)
@@ -55,20 +50,19 @@ module MaRuKu::Out::MediaWiki
   end
 
   def to_wiki_paragraph(context)
-    line_length = context[:line_length] || DefaultLineLength
-    wrap(@children, line_length, context)+"\n"
+    wrap_with_attrs children_to_wiki(context)
   end
 
   def to_wiki_div(context)
-    m = "<div"
-    attributes.each do |k, v|
-      m << " #{k.to_s}=\"#{v.to_s}\""
-    end
-    m << ">\n" << children_to_wiki(context).strip << "\n</div>\n\n"
+    wrap_with_attrs children_to_wiki(context)
   end
 
   def to_wiki_im_link(context)
-    "[#{@url} #{children_to_wiki(context)}]"
+    if url.start_with? "#"
+      "[[#{url}|#{children_to_wiki(context)}]]"
+    else
+      "[#{@url} #{children_to_wiki(context)}]"
+    end
   end
 
   def to_wiki_link(context)
@@ -86,7 +80,11 @@ module MaRuKu::Out::MediaWiki
       return children_to_wiki(context)
     end
 
-    "[#{url} #{title}]"
+    if url.start_with? "#"
+      "[[#{url}|#{title}]]"
+    else
+      "[#{url} #{title}]"
+    end
   end
 
   def to_wiki_im_image(context)
@@ -106,66 +104,45 @@ module MaRuKu::Out::MediaWiki
   # end
 
   def to_wiki_ol(context)
-    len = (context[:line_length] || DefaultLineLength) - 2
-    md = ""
+    out = ""
     self.children.each_with_index do |li, i|
-      w = wrap(li.children, len-2, context)
-      s = "# " + w
-      md += s
+      w = array_to_wiki(li.children, context)
+      s = "# " + w.strip + "\n\n"
+      out += s
     end
-    md + "\n"
+    wrap_with_attrs out
   end
 
   def to_wiki_ul(context)
-    len = (context[:line_length] || DefaultLineLength) - 2
-    md = ""
+    out = ""
     self.children.each_with_index do |li, i|
-      w = wrap(li.children, len-2, context)
-      s = "* " + w
-      md += s
+      w = array_to_wiki(li.children, context)
+      s = "* " + w.strip + "\n\n"
+      out += s
     end
-    md + "\n"
+    wrap_with_attrs out
+  end
+
+  def to_wiki_li(context)
+    wrap_with_attrs "* " + children_to_wiki(context).strip
+  end
+
+  def wrap_with_attrs(content, options={})
+    tag = options.fetch("tag", "div")
+    object = options.fetch("object", self)
+    content = "\n#{content.strip}\n"
+    attrs = MaRuKu::Out::HTML::filter_attributes(tag, @attributes)
+    if attrs.empty? or tag != "div"
+      content
+    else
+      MaRuKu::Out::HTML::wrap_with_attrs(tag, content, @attributes) + "\n\n"
+    end
   end
 
   # Convert each child to html
   def children_to_wiki(context)
     array_to_wiki(@children, context)
   end
-
-  def wrap(array, line_length, context)
-    out = ""
-    line = ""
-    array.each do |c|
-      if c.kind_of?(MaRuKu::MDElement) &&  c.node_type == :linebreak
-        out << line.strip << "  \n"; line="";
-        next
-      end
-
-      pieces =
-        if c.kind_of? String
-          c
-        elsif c.kind_of?(MaRuKu::MDElement)
-          method = "to_wiki_#{c.node_type}"
-          method = "to_wiki" unless c.respond_to?(method)
-          [c.send(method, context)].flatten
-        else
-          [c.to_wiki(context)].flatten
-        end
-
-      #     puts "Pieces: #{pieces.inspect}"
-      pieces.each do |p|
-        if p.size + line.size > line_length
-          out << line.strip << "\n";
-          line = ""
-        end
-        line << p
-      end
-    end
-    out << line.strip << "\n" if line.size > 0
-    out << ?\n if not out[-1] == ?\n
-    out
-  end
-
 
   def array_to_wiki(array, context, join_char='')
     e = []
