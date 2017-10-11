@@ -137,22 +137,31 @@ module MaRuKu::In::Markdown::SpanLevelParser
 
     # Return current char as a String (or nil).
     def cur_char
-      @scanner.peek(1)[0]
+      p = @scanner.pos
+      c = @scanner.getch
+      @scanner.pos = p
+      return c
     end
 
     # Return the next n chars as a String.
     def cur_chars(n)
-      @scanner.peek(n)
+      p = @scanner.pos
+      c = ""
+      for i in 1..n
+        c += @scanner.getch
+      end
+      @scanner.pos = p
+      return c
     end
 
     # Return the char after current char as a String (or nil).
     def next_char
-      @scanner.peek(2)[1]
+      cur_chars(2)[1]
     end
 
     # Return a character as a String, advancing the pointer.
     def shift_char
-      @scanner.getch[0]
+      @scanner.getch
     end
 
     # Advance the pointer
@@ -172,7 +181,7 @@ module MaRuKu::In::Markdown::SpanLevelParser
 
     # Returns true if string matches what we're pointing to
     def cur_chars_are(string)
-      @scanner.peek(string.size) == string
+      cur_chars(string.size) == string
     end
 
     # Returns true if Regexp r matches what we're pointing to
